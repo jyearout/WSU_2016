@@ -6,9 +6,9 @@
 #     move: A function that returns 'c' or 'b'
 ####
 
-team_name = 'The name the team gives to itself' # Only 10 chars displayed.
-strategy_name = 'The name the team gives to this strategy'
-strategy_description = 'How does this strategy decide?'
+team_name = 'DizzyD' #'The name the team gives to itself'  Only 10 chars displayed.
+strategy_name = 'Naive belief in humanity'  #'The name the team gives to this strategy'
+strategy_description = 'Work towards co-op, but defect away if score becomes too unfavorable'    #'How does this strategy decide?'
     
 def move(my_history, their_history, my_score, their_score):
     ''' Arguments accepted: my_history, their_history are strings.
@@ -17,17 +17,74 @@ def move(my_history, their_history, my_score, their_score):
     Make my move.
     Returns 'c' or 'b'. 
     '''
+    move_for_round = ''
+    vindictive = 0
+    v_count = 4
+#opp_is_alt = 0
+    min_dmg = 0
+    if(len(my_history) < 4):
+	move_for_round = 'c'
+    elif(their_history == 'bbb'):
+	vindictive = 1
+    elif(vindictive >= 1): #has there been too much defection from their side?
+	move_for_round = 'b'
+	v_count -= 1
+	if(v_count <= 0):
+		vindictive = 0
+    elif (opp_is_alt(their_history) == 1):
+	if (their_history[-1] == 'c'):
+	    move_for_round = 'b'
+	else:
+	    move_for_round = 'c'
+    elif (min_damage(my_score, their_score) == 1):
+        move_for_round = 'b'
+    if move_for_round == '':
+        move_for_round = 'c'
+    return move_for_round
 
-    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
-    # their_history: a string of the same length as history, possibly empty. 
-    # The first round between these two players is my_history[0] and their_history[0].
-    # The most recent round is my_history[-1] and their_history[-1].
-    
-    # Analyze my_history and their_history and/or my_score and their_score.
-    # Decide whether to return 'c' or 'b'.
-    
-    return 'c'
 
+def opp_is_alt(history):
+    
+    alt = 0
+    switcher = 1
+    still_possible = 1
+    if (history[0] == 'c'):
+	for hist in history:
+            if(switcher % 2 == 1):
+                if (history[switcher - 1] != 'c'):
+                    still_possible = 0
+            else:
+                if (history[switcher - 1] != 'b'):
+                    still_possible = 0
+            switcher += 1 
+    else:
+	for hist in history:
+	    if(switcher % 2 == 1):
+	        if (history[switcher - 1] != 'b'):
+	            still_possible = 0
+	    else:
+	        if (history[switcher - 1] != 'c'):
+	            print history[switcher - 1] + ' =c'
+	            still_possible = 0
+	    switcher += 1 
+    if (still_possible == 1):
+        return 1
+    else:
+	return 0
+	
+def min_damage(m_score, t_score):
+    minimizing = 0
+    if(m_score < t_score) and (m_score - t_score <= -2200):
+        minimizing = 1
+        return 1
+    elif minimizing == 1:
+        if m_score - t_score >= -500:
+            minimizing = 0
+            return 0
+        else:
+            return 1
+    else:
+        return 0
     
 def test_move(my_history, their_history, my_score, their_score, result):
     '''calls move(my_history, their_history, my_score, their_score)
@@ -47,13 +104,13 @@ def test_move(my_history, their_history, my_score, their_score, result):
 
 if __name__ == '__main__':
      
-    # Test 1: Betray on first move.
+    # Test 1: collude on first move.
     if test_move(my_history='',
               their_history='', 
               my_score=0,
               their_score=0,
-              result='b'):
-         print 'Test passed'
+              result='c'):
+        print ''
      # Test 2: Continue betraying if they collude despite being betrayed.
     test_move(my_history='bbb',
               their_history='ccc', 
@@ -65,4 +122,4 @@ if __name__ == '__main__':
               # move('bbb', 'ccc', 0, 0) returns 'b'.
               my_score=0, 
               their_score=0,
-              result='b')             
+              result='c')             
