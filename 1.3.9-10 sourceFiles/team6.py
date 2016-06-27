@@ -6,9 +6,9 @@
 #     move: A function that returns 'c' or 'b'
 ####
 
-team_name = 'The name the team gives to itself' # Only 10 chars displayed.
-strategy_name = 'The name the team gives to this strategy'
-strategy_description = 'How does this strategy decide?'
+team_name = 'Team6' # Only 10 chars displayed.
+strategy_name = 'Lets see what has happened and do the opposite'
+strategy_description = 'Sometimes the best thing to do is the opposite of what you should'
     
 def move(my_history, their_history, my_score, their_score):
     ''' Arguments accepted: my_history, their_history are strings.
@@ -26,7 +26,25 @@ def move(my_history, their_history, my_score, their_score):
     # Analyze my_history and their_history and/or my_score and their_score.
     # Decide whether to return 'c' or 'b'.
     
-    return 'c'
+    if (len(my_history) == 0):  # First round, lets betray to start things fun
+        return 'b'
+    else: # We'll do a bit of calculations
+        releases = 0
+        betrayls = 0
+        for i in range(0, len(my_history) - 1):
+            if (their_history[i] == 'c'):
+                if (my_history[i] == 'c'):
+                    releases += 1
+                else:  # We know they were betrayed
+                    betrayls += 1
+            else:
+                betrayls += 1
+        
+        # Now lets do the opposite of what we should
+        if (betrayls > releases):
+            return 'c'
+        else:
+            return 'b'
 
     
 def test_move(my_history, their_history, my_score, their_score, result):
