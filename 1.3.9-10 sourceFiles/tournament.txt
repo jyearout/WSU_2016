@@ -1,0 +1,1730 @@
+--------------------------------------------------------------------------------
+Section 0 - Line up
+--------------------------------------------------------------------------------
+Player 0 (P0): Team Greg, Dont know
+        How does this strategy decide?
+Player 1 (P1): Honest Abe, Collude 70% of the time unless betrayed within last 2 rounds.
+        Betray if betrayed in last two rounds.
+        Collude 70% of the time and betray 30%.
+Player 2 (P2): DizzyD, Naive belief in humanity
+        Work towards co-op, but defect away if score becomes too unfavorable
+Player 3 (P3): The name the team gives to itself, The name the team gives to this strategy
+        How does this strategy decide?
+Player 4 (P4): The name the team gives to itself, The name the team gives to this strategy
+        How does this strategy decide?
+Player 5 (P5): Team6, Lets see what has happened and do the opposite
+        Sometimes the best thing to do is the opposite of what you should
+Player 6 (P6): Kristin, Use early history
+        Collude first round. Compare all rounds to the previous round and 
+        assume opponent will behave the same as the first time the previous 
+        round's result occurred. If the previous round's result never has 
+        happened, collude except after being severly punished.
+Player 7 (P7): The name the team gives to itself, The name the team gives to this strategy
+        How does this strategy decide?
+Player 8 (P8): Yearout, Betray if recently betrayed, otherwise betray occaisonally
+        if betrayed in last 20 rounds, then betray, otherwise randomly betray xx
+        % of the time
+Player 9 (P9): Anonymous player, Collude first 100 rounds unless betrayed. Betray 101st round forward.
+        Betray if ever betrayed. If you don't mess with me in the early rounds I
+         won't mess with you. 
+        If I haven't been betrayed yet, I'll betray starting with the 100th roun
+        d. 
+--------------------------------------------------------------------------------
+Section 1 - Player vs. Player
+--------------------------------------------------------------------------------
+Each column shows pts/round earned against each other player:
+             P0     P1     P2     P3     P4     P5     P6     P7     P8     P9
+vs. P0 :      0   -238      0      4   -247   -122      0      0   -244     15
+vs. P1 :   -243      0   -247   -247   -245   -199   -252   -148   -250   -247
+vs. P2 :      0   -227      0   -144   -201   -105      0      0   -236      1
+vs. P3 :    -22   -247   -163      0   -250   -216   -243    -47   -247   -215
+vs. P4 :   -247   -245   -216   -250      0   -164   -216    -55   -246   -253
+vs. P5 :    -88    -15   -121      1    -56      0   -118   -254     49     94
+vs. P6 :      0   -242      0   -233   -206   -111      0      0   -246    -58
+vs. P7 :      0     29      0      9     10     50      0      0     46     47
+vs. P8 :   -248   -250   -250   -250   -246   -278   -254   -235      0   -248
+vs. P9 :    -76   -247    -10   -215   -248   -495    -67   -239   -248      0
+TOTAL  :   -924  -1682  -1007  -1325  -1689  -1640  -1150   -978  -1622   -864
+--------------------------------------------------------------------------------
+Section 2 - Leaderboard
+--------------------------------------------------------------------------------
+Average points per round:
+Team name (P#):  Score      with strategy name
+Anonymous (P9):        -87 points with Collude first 100 rounds unless betrayed
+Team Greg (P0):        -93 points with Dont know                               
+The name t(P7):        -98 points with The name the team gives to this strategy
+DizzyD    (P2):       -101 points with Naive belief in humanity                
+Kristin   (P6):       -115 points with Use early history                       
+The name t(P3):       -133 points with The name the team gives to this strategy
+Yearout   (P8):       -163 points with Betray if recently betrayed, otherwise b
+Team6     (P5):       -164 points with Lets see what has happened and do the op
+Honest Abe(P1):       -169 points with Collude 70% of the time unless betrayed 
+The name t(P4):       -169 points with The name the team gives to this strategy
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+team1--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'Team Greg' # Only 10 chars displayed.
+strategy_name = 'Dont know'
+strategy_description = 'How does this strategy decide?'
+    
+def move(my_history, their_history, my_score, their_score):
+    ''' Arguments accepted: my_history, their_history are strings.
+    my_score, their_score are ints.
+    
+    Make my move.
+    Returns 'c' or 'b'. 
+    '''
+
+    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
+    # their_history: a string of the same length as history, possibly empty. 
+    # The first round between these two players is my_history[0] and their_history[0].
+    # The most recent round is my_history[-1] and their_history[-1].
+    
+    # Analyze my_history and their_history and/or my_score and their_score.
+    # Decide whether to return 'c' or 'b'.
+    my_move ='c'
+    times_betrayed = 0
+    if(len(their_history)>0):
+        for t in their_history:
+            if t == 'b':
+                times_betrayed += 1
+        my_move = betrayed_enough(times_betrayed+0.0, len(their_history)+0.0)
+    return my_move
+
+def betrayed_enough(betrayed, total):
+    if (betrayed/total >= .25):
+        return 'b'
+    else:
+        return 'c'
+    
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+     
+    # Test 1: Betray on first move.
+    if test_move(my_history='',
+              their_history='', 
+              my_score=0,
+              their_score=0,
+              result='c'):
+         print 'Test passed'
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0, 
+              their_score=0,
+              result='c')             --------------------------------------------------------------------------------
+team2--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'Honest Abe' # Only 10 chars displayed.
+strategy_name = 'Collude 70% of the time unless betrayed within last 2 rounds.'
+strategy_description = '''Betray if betrayed in last two rounds.
+Collude 70% of the time and betray 30%.'''
+
+import random
+    
+def move(my_history, their_history, my_score, their_score):
+    '''Make my move based on the history with this player.
+    
+    history: a string with one letter (c or b) per round that has been played with this opponent.
+    their_history: a string of the same length as history, possibly empty. 
+    The first round between these two players is my_history[0] and their_history[0]
+    The most recent round is my_history[-1] and their_history[-1]
+    
+    Returns 'c' or 'b' for collude or betray.
+    '''
+
+    if 'b' in their_history[-2:]: # If the other player has betrayed in last two rounds, 
+        return 'b'               # Betray.
+    else:
+        if random.random()<0.3: # 30% of the other rounds
+            return 'b'         # Betray
+        else:
+            return 'c'         # but 70% of the time collude--------------------------------------------------------------------------------
+team3--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'DizzyD' #'The name the team gives to itself'  Only 10 chars displayed.
+strategy_name = 'Naive belief in humanity'  #'The name the team gives to this strategy'
+strategy_description = 'Work towards co-op, but defect away if score becomes too unfavorable'    #'How does this strategy decide?'
+    
+def move(my_history, their_history, my_score, their_score):
+    ''' Arguments accepted: my_history, their_history are strings.
+    my_score, their_score are ints.
+    
+    Make my move.
+    Returns 'c' or 'b'. 
+    '''
+    move_for_round = ''
+    vindictive = 0
+    v_count = 4
+#opp_is_alt = 0
+    min_dmg = 0
+    if(len(my_history) < 4):
+	move_for_round = 'c'
+    elif(their_history == 'bbb'):
+	vindictive = 1
+    elif(vindictive >= 1): #has there been too much defection from their side?
+	move_for_round = 'b'
+	v_count -= 1
+	if(v_count <= 0):
+		vindictive = 0
+    elif (opp_is_alt(their_history) == 1):
+	if (their_history[-1] == 'c'):
+	    move_for_round = 'b'
+	else:
+	    move_for_round = 'c'
+    elif (min_damage(my_score, their_score) == 1):
+        move_for_round = 'b'
+    if move_for_round == '':
+        move_for_round = 'c'
+    return move_for_round
+
+
+def opp_is_alt(history):
+    
+    alt = 0
+    switcher = 1
+    still_possible = 1
+    if (history[0] == 'c'):
+	for hist in history:
+            if(switcher % 2 == 1):
+                if (history[switcher - 1] != 'c'):
+                    still_possible = 0
+            else:
+                if (history[switcher - 1] != 'b'):
+                    still_possible = 0
+            switcher += 1 
+    else:
+	for hist in history:
+	    if(switcher % 2 == 1):
+	        if (history[switcher - 1] != 'b'):
+	            still_possible = 0
+	    else:
+	        if (history[switcher - 1] != 'c'):
+	            print history[switcher - 1] + ' =c'
+	            still_possible = 0
+	    switcher += 1 
+    if (still_possible == 1):
+        return 1
+    else:
+	return 0
+	
+def min_damage(m_score, t_score):
+    minimizing = 0
+    if(m_score < t_score) and (m_score - t_score <= -2200):
+        minimizing = 1
+        return 1
+    elif minimizing == 1:
+        if m_score - t_score >= -500:
+            minimizing = 0
+            return 0
+        else:
+            return 1
+    else:
+        return 0
+    
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+     
+    # Test 1: collude on first move.
+    if test_move(my_history='',
+              their_history='', 
+              my_score=0,
+              their_score=0,
+              result='c'):
+        print ''
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0, 
+              their_score=0,
+              result='c')             --------------------------------------------------------------------------------
+team4--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'The name the team gives to itself' # Only 10 chars displayed.
+strategy_name = 'The name the team gives to this strategy'
+strategy_description = 'How does this strategy decide?'
+import random   
+def move(my_history, their_history, my_score, their_score):
+    ''' Arguments accepted: my_history, their_history are strings.
+    my_score, their_score are ints.
+    
+    Make my move.
+    Returns 'c' or 'b'. 
+    '''
+
+    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
+    # their_history: a string of the same length as history, possibly empty. 
+    # The first round between these two players is my_history[0] and their_history[0].
+    # The most recent round is my_history[-1] and their_history[-1].
+    
+    # Analyze my_history and their_history and/or my_score and their_score.
+    # Decide whether to return 'c' or 'b'.
+    
+    if 'b' in their_history[-10:]: # If the other player has betrayed within last 10 rounds, 
+        return 'b'               # Betray.
+    else:
+        if random.random()<0.1: # 10% of the other rounds
+            return 'b'         # Betray
+        else:
+            return 'c'         # but 90% of the time collude
+
+    
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+     
+    # Test 1: Betray on first move.
+    if test_move(my_history='',
+              their_history='', 
+              my_score=0,
+              their_score=0,
+              result='b'):
+         print 'Test passed'
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0, 
+              their_score=0,
+              result='b')             --------------------------------------------------------------------------------
+team5--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'The name the team gives to itself' # Only 10 chars displayed.
+strategy_name = 'The name the team gives to this strategy'
+strategy_description = 'How does this strategy decide?'
+
+import random
+      
+def move(my_history, their_history, my_score, their_score):
+    '''Make my move based on the history with this player.
+    
+    history: a string with one letter (c or b) per round that has been played with this opponent.
+    their_history: a string of the same length as history, possibly empty. 
+    The first round between these two players is my_history[0] and their_history[0]
+    The most recent round is my_history[-1] and their_history[-1]
+    
+    Returns 'c' or 'b' for collude or betray.
+    '''
+
+    if 'b' in their_history[-2:]: # If the other player has betrayed within last 2 rounds, 
+        return 'b'               # Betray.
+    else:
+        if random.random()<0.15: # 15% of the other rounds
+            return 'b'         # Betray
+        else:
+            return 'c'         # but 85% of the time collude
+
+    
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+     
+    # Test 1: Betray on first move.
+    if test_move(my_history='',
+              their_history='', 
+              my_score=0,
+              their_score=0,
+              result='b'):
+         print 'Test passed'
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0, 
+              their_score=0,
+              result='b')             --------------------------------------------------------------------------------
+team6--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'Team6' # Only 10 chars displayed.
+strategy_name = 'Lets see what has happened and do the opposite'
+strategy_description = 'Sometimes the best thing to do is the opposite of what you should'
+    
+def move(my_history, their_history, my_score, their_score):
+    ''' Arguments accepted: my_history, their_history are strings.
+    my_score, their_score are ints.
+    
+    Make my move.
+    Returns 'c' or 'b'. 
+    '''
+
+    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
+    # their_history: a string of the same length as history, possibly empty. 
+    # The first round between these two players is my_history[0] and their_history[0].
+    # The most recent round is my_history[-1] and their_history[-1].
+    
+    # Analyze my_history and their_history and/or my_score and their_score.
+    # Decide whether to return 'c' or 'b'.
+    
+    if (len(my_history) == 0):  # First round, lets betray to start things fun
+        return 'b'
+    else: # We'll do a bit of calculations
+        releases = 0
+        betrayls = 0
+        for i in range(0, len(my_history) - 1):
+            if (their_history[i] == 'c'):
+                if (my_history[i] == 'c'):
+                    releases += 1
+                else:  # We know they were betrayed
+                    betrayls += 1
+            else:
+                betrayls += 1
+        
+        # Now lets do the opposite of what we should
+        if (betrayls > releases):
+            return 'c'
+        else:
+            return 'b'
+
+    
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+     
+    # Test 1: Betray on first move.
+    if test_move(my_history='',
+              their_history='', 
+              my_score=0,
+              their_score=0,
+              result='b'):
+         print 'Test passed'
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0, 
+              their_score=0,
+              result='b')             --------------------------------------------------------------------------------
+team7--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'Kristin'
+strategy_name = 'Use early history'
+strategy_description = '''\
+Collude first round. Compare all rounds to the previous round and 
+assume opponent will behave the same as the first time the previous 
+round's result occurred. If the previous round's result never has 
+happened, collude except after being severly punished.'''
+    
+def move(my_history, their_history, my_score, their_score):
+    '''Make my move based on the history with this player.
+    
+    history: a string with one letter (c or b) per round that has been played with this opponent.
+    their_history: a string of the same length as history, possibly empty. 
+    The first round between these two players is my_history[0] and their_history[0]
+    The most recent round is my_history[-1] and their_history[-1]
+    
+    Returns 'c' or 'b' for collude or betray.
+    '''
+    if len(my_history)==0: # It's the first round: collude
+        return 'c'
+    else:
+        # If there was a previous round just like the last one,
+        # do whatever they did in the round that followed it
+        
+        # Reference last round
+        recent_round_them = their_history[-1]
+        recent_round_me = my_history[-1]
+                    
+        # Look at rounds before that one
+        for round in range(len(my_history)-1):
+            prior_round_them = their_history[round]
+            prior_round_me = my_history[round]
+            # If one matches
+            if (prior_round_me == recent_round_me) and \
+                    (prior_round_them == recent_round_them):
+                return their_history[round]
+        # No match found
+        if my_history[-1]=='c' and their_history[-1]=='b':
+            return 'b' # Betray if they were severely punished last time
+        else:
+            return 'c' # Otherwise collude.--------------------------------------------------------------------------------
+team8--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'The name the team gives to itself' # Only 10 chars displayed.
+strategy_name = 'The name the team gives to this strategy'
+strategy_description = 'How does this strategy decide?'
+    
+def move(my_history, their_history, my_score, their_score):
+    ''' Arguments accepted: my_history, their_history are strings.
+    my_score, their_score are ints.
+    
+    Make my move.
+    Returns 'c' or 'b'. 
+    '''
+
+    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
+    # their_history: a string of the same length as history, possibly empty. 
+    # The first round between these two players is my_history[0] and their_history[0].
+    # The most recent round is my_history[-1] and their_history[-1].
+    
+    # Analyze my_history and their_history and/or my_score and their_score.
+    # Decide whether to return 'c' or 'b'.
+    
+    return 'c'
+
+    
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+     
+    # Test 1: Betray on first move.
+    if test_move(my_history='',
+              their_history='', 
+              my_score=0,
+              their_score=0,
+              result='b'):
+         print 'Test passed'
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0, 
+              their_score=0,
+              result='b')             --------------------------------------------------------------------------------
+team9--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+import random
+
+team_name = 'Yearout' # Only 10 chars displayed.
+strategy_name = 'Betray if recently betrayed, otherwise betray occaisonally'
+strategy_description = 'if betrayed in last 20 rounds, then betray, otherwise randomly betray xx% of the time'
+    
+def move(my_history, their_history, my_score, their_score):
+    ''' Arguments accepted: my_history, their_history are strings.
+    my_score, their_score are ints.
+    
+    Make my move.
+    Returns 'c' or 'b'. 
+    '''
+
+    # my_history: a string with one letter (c or b) per round that has been played with this opponent.
+    # their_history: a string of the same length as history, possibly empty. 
+    # The first round between these two players is my_history[0] and their_history[0].
+    # The most recent round is my_history[-1] and their_history[-1].
+    
+    # Analyze my_history and their_history and/or my_score and their_score.
+    # Decide whether to return 'c' or 'b'.
+    
+    if 'b' in their_history[-20:]: # If the other player has betrayed within last 20 rounds, 
+        return 'b'               # Betray.
+    
+    else:
+        if random.random()<0.5: # 50% of the other rounds
+            return 'b'         # Betray
+        else:
+            return 'c'         # but 50% of the time collude
+
+    
+def test_move(my_history, their_history, my_score, their_score, result):
+    '''calls move(my_history, their_history, my_score, their_score)
+    from this module. Prints error if return value != result.
+    Returns True or False, dpending on whether result was as expected.
+    '''
+    real_result = move(my_history, their_history, my_score, their_score)
+    if real_result == result:
+        return True
+    else:
+        print("move(" +
+            ", ".join(["'"+my_history+"'", "'"+their_history+"'",
+                       str(my_score), str(their_score)])+
+            ") returned " + "'" + real_result + "'" +
+            " and should have returned '" + result + "'")
+        return False
+
+if __name__ == '__main__':
+     
+    # Test 1: Betray on first move.
+    if test_move(my_history='',
+              their_history='', 
+              my_score=0,
+              their_score=0,
+              result='b'):
+         print 'Test passed'
+     # Test 2: Continue betraying if they collude despite being betrayed.
+    test_move(my_history='bbb',
+              their_history='ccc', 
+              # Note the scores are for testing move().
+              # The history and scores don't need to match unless
+              # that is relevant to the test of move(). Here,
+              # the simulation (if working correctly) would have awarded 
+              # 300 to me and -750 to them. This test will pass if and only if
+              # move('bbb', 'ccc', 0, 0) returns 'b'.
+              my_score=0, 
+              their_score=0,
+              result='b')  
+--------------------------------------------------------------------------------
+team14--------------------------------------------------------------------------------
+####
+# Each team's file must define four tokens:
+#     team_name: a string
+#     strategy_name: a string
+#     strategy_description: a string
+#     move: A function that returns 'c' or 'b'
+####
+
+team_name = 'Anonymous player'
+strategy_name = 'Collude first 100 rounds unless betrayed. Betray 101st round forward.'
+strategy_description = '''\
+Betray if ever betrayed. If you don't mess with me in the early rounds I won't mess with you. 
+If I haven't been betrayed yet, I'll betray starting with the 100th round. 
+'''
+
+import random
+    
+def move(my_history, their_history, my_score, their_score):
+    '''Make my move based on the history with this player.
+    
+    history: a string with one letter (c or b) per round that has been played with this opponent.
+    their_history: a string of the same length as history, possibly empty. 
+    The first round between these two players is my_history[0] and their_history[0]
+    The most recent round is my_history[-1] and their_history[-1]
+    
+    Returns 'c' or 'b' for collude or betray.
+    '''
+    # If the other player has betrayed or this is the last half of the game, 
+    if 'b' in their_history or len(their_history)>100: 
+        return 'b'               # Betray.
+    else:
+        return 'c'         # but 90% of the time collude
+    
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team Team Greg
+--------------------------------------------------------------------------------
+-243 pt/round: Team Greg(P0) "Dont know"
+-238 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+CCCCcCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCBCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+0 pt/round: Team Greg(P0) "Dont know"
+0 pt/round: DizzyD(P2) "Naive belief in humanity"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-22 pt/round: Team Greg(P0) "Dont know"
+4 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCCCCCCCcCCCCCCCCCcCCCCCCCCCCCCCCCCcCCCCCCCCCCCCCCCCCcCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCBCCCCCCCCCBCCCCCCCCCCCCCCCCBCCCCCCCCCCCCCCCCCBCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCcCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCBCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-247 pt/round: Team Greg(P0) "Dont know"
+-247 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+CCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-88 pt/round: Team Greg(P0) "Dont know"
+-122 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+cbBBBBBBBCCCCCCCCCCcccCCCccbBBBBBCCCCCCCCcccBCCCCccbBBBBBCCCCCCCCcccBCCCCccbBBBB
+BbcccccccCCCCCCCCCCBBBCCCBBbcccccCCCCCCCCBBBcCCCCBBbcccccCCCCCCCCBBBcCCCCBBbcccc
+
+BCCCCCCCCcccBCCCCccbBBBBBCCCCCCCCcccBCCCCccbBBBBBCCCCCCCCcccB
+cCCCCCCCCBBBcCCCCBBbcccccCCCCCCCCBBBcCCCCBBbcccccCCCCCCCCBBBc
+
+--------------------------------------------------------------------------------
+0 pt/round: Team Greg(P0) "Dont know"
+0 pt/round: Kristin(P6) "Use early history"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+0 pt/round: Team Greg(P0) "Dont know"
+0 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCC
+CCCCC
+
+--------------------------------------------------------------------------------
+-248 pt/round: Team Greg(P0) "Dont know"
+-244 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+CCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-76 pt/round: Team Greg(P0) "Dont know"
+15 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCcccccccccccccccccc
+CCCCCCCCCCCCCCCCCCCCCBBBBBBBBBBBBBBBBBB
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team Honest Abe
+--------------------------------------------------------------------------------
+-238 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+-243 pt/round: Team Greg(P0) "Dont know"
+CCCCBCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCcCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-227 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+-247 pt/round: DizzyD(P2) "Naive belief in humanity"
+BCBCcBBCCCBcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+cCcCBccCCCcBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-247 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+-247 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+CCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-245 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+-245 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+CCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-15 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+-199 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+cbBBCCBBBCBCBBCCCCCBBBBBCCBBCBCBBCCCCCCCCcbbBBBCCCCCBbBBCCCCCcbbBBBBCBCCBCBBCCCC
+BbccCCcccCcCccCCCCCcccccCCccCcCccCCCCCCCCBbbcccCCCCCcbccCCCCCBbbccccCcCCcCccCCCC
+
+CCCcbbBBCCCBBBCCCCCcbbBBCBCBBCCBCBCBCCBBCBCCCCCcbbBBCBCBBCBCCCCBCCCcbbBBCBCCCCCc
+CCCBbbccCCCcccCCCCCBbbccCcCccCCcCcCcCCccCcCCCCCBbbccCcCccCcCCCCcCCCBbbccCcCCCCCB
+
+bbBBCCCCCcbbBBCBCBCBCBCCCBBCBCCCCbbb
+bbccCCCCCBbbccCcCcCcCcCCCccCcCCCCbbb
+
+--------------------------------------------------------------------------------
+-242 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+-252 pt/round: Kristin(P6) "Use early history"
+CBcBbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CcBcbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+29 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+-148 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+CBCBCCCCBBCBCCCCCCCBCCCCCCBCCBCCBBCCBCCCBCBCCCCCBBCBCBCBCCCBBCCBBCCCBCCBCBCCCCBB
+CcCcCCCCccCcCCCCCCCcCCCCCCcCCcCCccCCcCCCcCcCCCCCccCcCcCcCCCccCCccCCCcCCcCcCCCCcc
+
+BBCCCBCBCCCCCCCCCBCCCCCCCCCBCBCCBCCCCCCCBC
+ccCCCcCcCCCCCCCCCcCCCCCCCCCcCcCCcCCCCCCCcC
+
+--------------------------------------------------------------------------------
+-250 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+-250 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+cBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+Bcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-247 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+-247 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+CBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team DizzyD
+--------------------------------------------------------------------------------
+0 pt/round: DizzyD(P2) "Naive belief in humanity"
+0 pt/round: Team Greg(P0) "Dont know"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-247 pt/round: DizzyD(P2) "Naive belief in humanity"
+-227 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+cCcCBccCCCcBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+BCBCcBBCCCBcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-163 pt/round: DizzyD(P2) "Naive belief in humanity"
+-144 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+CCCCCCCCCCcCCCCCCCCCCCCCCCCCCCCCcCCCCCCCCCCCCCcCCCCcBcbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCBCCCCCCCCCCCCCCCCCCCCCBCCCCCCCCCCCCCBCCCCBcBbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-216 pt/round: DizzyD(P2) "Naive belief in humanity"
+-201 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCcCCCCcCCCCCcCcBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCBCCCCBCCCCCBCBcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bb
+bb
+
+--------------------------------------------------------------------------------
+-121 pt/round: DizzyD(P2) "Naive belief in humanity"
+-105 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+ccCCCccbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbb
+BBCCCBBbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbb
+
+BCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcb
+cCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBb
+
+--------------------------------------------------------------------------------
+0 pt/round: DizzyD(P2) "Naive belief in humanity"
+0 pt/round: Kristin(P6) "Use early history"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+0 pt/round: DizzyD(P2) "Naive belief in humanity"
+0 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCC
+CCCCCC
+
+--------------------------------------------------------------------------------
+-250 pt/round: DizzyD(P2) "Naive belief in humanity"
+-236 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+CcCCccCcBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CBCCBBCBcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-10 pt/round: DizzyD(P2) "Naive belief in humanity"
+1 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCcc
+CCCCCCCCCCCCCCCCCCCCCBB
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team The name the team gives to itself
+--------------------------------------------------------------------------------
+4 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+-22 pt/round: Team Greg(P0) "Dont know"
+CCCCCCCCCCCCCCCCCCCCCCBCCCCCCCCCBCCCCCCCCCCCCCCCCBCCCCCCCCCCCCCCCCCBCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCcCCCCCCCCCcCCCCCCCCCCCCCCCCcCCCCCCCCCCCCCCCCCcCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCBCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCcCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-247 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+-247 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+CCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-144 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+-163 pt/round: DizzyD(P2) "Naive belief in humanity"
+CCCCCCCCCCBCCCCCCCCCCCCCCCCCCCCCBCCCCCCCCCCCCCBCCCCBcBbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCcCCCCCCCCCCCCCCCCCCCCCcCCCCCCCCCCCCCcCCCCcBcbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-250 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+-250 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+cBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+Bcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+1 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+-216 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+cbBBBBBBBBBBCCCCCCCBCCCCCCCcbbBBBBBBBBBBCCBCCBCCCCCCCCCCCcbbBBBBBBBBBBCCBCCCCCCC
+BbccccccccccCCCCCCCcCCCCCCCBbbccccccccccCCcCCcCCCCCCCCCCCBbbccccccccccCCcCCCCCCC
+
+CCCCCcbbBBBBBBBBBBCCCCCCCCCCCBCCCcbbBBBBBBBBBBCCCCBCCCCCCCCCCcbbBBB
+CCCCCBbbccccccccccCCCCCCCCCCCcCCCBbbccccccccccCCCCcCCCCCCCCCCBbbccc
+
+--------------------------------------------------------------------------------
+-233 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+-243 pt/round: Kristin(P6) "Use early history"
+CCCCCBcBbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCcBcbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+9 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+-47 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCCCCCCCBCCCCBCCCCCCCCCCCCCCCCCCCCCCBCCCCBCCCCCCCCCCCCCCCCBCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCcCCCCcCCCCCCCCCCCCCCCCCCCCCCcCCCCcCCCCCCCCCCCCCCCCcCCCCCCC
+
+CCCCCCBCCCCCCCCCBCCCBCCCCBCCCBCCCBCCCCCBCCCBCCCCCCCCCCBCCCCCCCCCCCCCCCCCCCCCCBCB
+CCCCCCcCCCCCCCCCcCCCcCCCCcCCCcCCCcCCCCCcCCCcCCCCCCCCCCcCCCCCCCCCCCCCCCCCCCCCCcCc
+
+CCCCCCCCCCCBCCCCCCCCCCCC
+CCCCCCCCCCCcCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-250 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+-247 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+Ccbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbb
+bbb
+
+--------------------------------------------------------------------------------
+-215 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+-215 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+CCCCCCCCCCCCCCCCCCCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team The name the team gives to itself
+--------------------------------------------------------------------------------
+-247 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+-247 pt/round: Team Greg(P0) "Dont know"
+CCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-245 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+-245 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+CCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-201 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+-216 pt/round: DizzyD(P2) "Naive belief in humanity"
+CCCCCCCCCCCCCCCCBCCCCBCCCCCBCBcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCcCCCCcCCCCCcCcBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bb
+bb
+
+--------------------------------------------------------------------------------
+-250 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+-250 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+Bcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+cBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-56 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+-164 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+cbBBCBCCCCCcbbBBBCCCCBCCCcbbBBCCCBCCCcbbBBCCCCCcbbBBBCCCBBCCCCCcbbBBBCCCCCCcbbBB
+BbccCcCCCCCBbbcccCCCCcCCCBbbccCCCcCCCBbbccCCCCCBbbcccCCCccCCCCCBbbcccCCCCCCBbbcc
+
+CBBCCCCCCcbbBBCCCCCcbbBBCCCBCCCbbbBBCCCCCcbbBBCBCCCBCCBcBBCCCCCbbbBBCCCCCcbbBBCC
+CccCCCCCCBbbccCCCCCBbbccCCCcCCCbbbccCCCCCBbbccCcCCCcCCcBccCCCCCbbbccCCCCCBbbccCC
+
+CCCcbbBBCCCCBcBBCCCCCcbbBBCCCCCcbbBBBCCC
+CCCBbbccCCCCcBccCCCCCBbbccCCCCCBbbcccCCC
+
+--------------------------------------------------------------------------------
+-206 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+-216 pt/round: Kristin(P6) "Use early history"
+CCCCCCCCCCCCCCCCCCCBcBbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCcBcbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+10 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+-55 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+CBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCBBBCBCCCCCCCCCCCCCCCCCCCCCCCCCBCBCCCCCCCCC
+CcCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCcccCcCCCCCCCCCCCCCCCCCCCCCCCCCcCcCCCCCCCCC
+
+CCCCCCCBCCCCBCCCCCCCCCCCCCCCCCCBCCCCCCBBCCCCCCCCCCCCCCBBCCCCBCCCCCCCCCBCBCCCCCCC
+CCCCCCCcCCCCcCCCCCCCCCCCCCCCCCCcCCCCCCccCCCCCCCCCCCCCCccCCCCcCCCCCCCCCcCcCCCCCCC
+
+CCBCCCCCCCBCC
+CCcCCCCCCCcCC
+
+--------------------------------------------------------------------------------
+-246 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+-246 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+CCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-248 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+-253 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+Bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team Team6
+--------------------------------------------------------------------------------
+-122 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+-88 pt/round: Team Greg(P0) "Dont know"
+BbcccccccCCCCCCCCCCBBBCCCBBbcccccCCCCCCCCBBBcCCCCBBbcccccCCCCCCCCBBBcCCCCBBbcccc
+cbBBBBBBBCCCCCCCCCCcccCCCccbBBBBBCCCCCCCCcccBCCCCccbBBBBBCCCCCCCCcccBCCCCccbBBBB
+
+cCCCCCCCCBBBcCCCCBBbcccccCCCCCCCCBBBcCCCCBBbcccccCCCCCCCCBBBc
+BCCCCCCCCcccBCCCCccbBBBBBCCCCCCCCcccBCCCCccbBBBBBCCCCCCCCcccB
+
+--------------------------------------------------------------------------------
+-199 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+-15 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+BbccCCcccCcCccCCCCCcccccCCccCcCccCCCCCCCCBbbcccCCCCCcbccCCCCCBbbccccCcCCcCccCCCC
+cbBBCCBBBCBCBBCCCCCBBBBBCCBBCBCBBCCCCCCCCcbbBBBCCCCCBbBBCCCCCcbbBBBBCBCCBCBBCCCC
+
+CCCBbbccCCCcccCCCCCBbbccCcCccCCcCcCcCCccCcCCCCCBbbccCcCccCcCCCCcCCCBbbccCcCCCCCB
+CCCcbbBBCCCBBBCCCCCcbbBBCBCBBCCBCBCBCCBBCBCCCCCcbbBBCBCBBCBCCCCBCCCcbbBBCBCCCCCc
+
+bbccCCCCCBbbccCcCcCcCcCCCccCcCCCCbbb
+bbBBCCCCCcbbBBCBCBCBCBCCCBBCBCCCCbbb
+
+--------------------------------------------------------------------------------
+-105 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+-121 pt/round: DizzyD(P2) "Naive belief in humanity"
+BBCCCBBbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbb
+ccCCCccbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbb
+
+cCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBb
+BCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcb
+
+--------------------------------------------------------------------------------
+-216 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+1 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+BbccccccccccCCCCCCCcCCCCCCCBbbccccccccccCCcCCcCCCCCCCCCCCBbbccccccccccCCcCCCCCCC
+cbBBBBBBBBBBCCCCCCCBCCCCCCCcbbBBBBBBBBBBCCBCCBCCCCCCCCCCCcbbBBBBBBBBBBCCBCCCCCCC
+
+CCCCCBbbccccccccccCCCCCCCCCCCcCCCBbbccccccccccCCCCcCCCCCCCCCCBbbccc
+CCCCCcbbBBBBBBBBBBCCCCCCCCCCCBCCCcbbBBBBBBBBBBCCCCBCCCCCCCCCCcbbBBB
+
+--------------------------------------------------------------------------------
+-164 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+-56 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+BbccCcCCCCCBbbcccCCCCcCCCBbbccCCCcCCCBbbccCCCCCBbbcccCCCccCCCCCBbbcccCCCCCCBbbcc
+cbBBCBCCCCCcbbBBBCCCCBCCCcbbBBCCCBCCCcbbBBCCCCCcbbBBBCCCBBCCCCCcbbBBBCCCCCCcbbBB
+
+CccCCCCCCBbbccCCCCCBbbccCCCcCCCbbbccCCCCCBbbccCcCCCcCCcBccCCCCCbbbccCCCCCBbbccCC
+CBBCCCCCCcbbBBCCCCCcbbBBCCCBCCCbbbBBCCCCCcbbBBCBCCCBCCBcBBCCCCCbbbBBCCCCCcbbBBCC
+
+CCCBbbccCCCCcBccCCCCCBbbccCCCCCBbbcccCCC
+CCCcbbBBCCCCBcBBCCCCCcbbBBCCCCCcbbBBBCCC
+
+--------------------------------------------------------------------------------
+-111 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+-118 pt/round: Kristin(P6) "Use early history"
+BbCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbb
+cbCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbb
+
+cCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbb
+BCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbb
+
+cCCCCBbbcCCCCBbbcCCCCBbb
+BCCCCcbbBCCCCcbbBCCCCcbb
+
+--------------------------------------------------------------------------------
+50 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+-254 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+BBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBB
+ccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCccc
+
+CCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBB
+CCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCccc
+
+--------------------------------------------------------------------------------
+-278 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+49 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+BbccccccccccccccccccccCccCCCcCCcCcCCCcCCCCcccCcCCcccCCcCcCcCcccCCCcccccCcCccCccc
+cbBBBBBBBBBBBBBBBBBBBBCBBCCCBCCBCBCCCBCCCCBBBCBCCBBBCCBCBCBCBBBCCCBBBBBCBCBBCBBB
+
+ccCCCCcCcCCCcCcCCCccCCccCcCcCCCCcccCCcCCcCccCccCCccCcC
+BBCCCCBCBCCCBCBCCCBBCCBBCBCBCCCCBBBCCBCCBCBBCBBCCBBCBC
+
+--------------------------------------------------------------------------------
+-495 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+94 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+Bbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cbBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team Kristin
+--------------------------------------------------------------------------------
+0 pt/round: Kristin(P6) "Use early history"
+0 pt/round: Team Greg(P0) "Dont know"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-252 pt/round: Kristin(P6) "Use early history"
+-242 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+CcBcbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CBcBbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+0 pt/round: Kristin(P6) "Use early history"
+0 pt/round: DizzyD(P2) "Naive belief in humanity"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-243 pt/round: Kristin(P6) "Use early history"
+-233 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+CCCCCcBcbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCBcBbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-216 pt/round: Kristin(P6) "Use early history"
+-206 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCCCCcBcbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCBcBbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-118 pt/round: Kristin(P6) "Use early history"
+-111 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+cbCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbb
+BbCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbb
+
+BCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbbBCCCCcbb
+cCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbbcCCCCBbb
+
+BCCCCcbbBCCCCcbbBCCCCcbb
+cCCCCBbbcCCCCBbbcCCCCBbb
+
+--------------------------------------------------------------------------------
+0 pt/round: Kristin(P6) "Use early history"
+0 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-254 pt/round: Kristin(P6) "Use early history"
+-246 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+cbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+BbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bb
+bb
+
+--------------------------------------------------------------------------------
+-67 pt/round: Kristin(P6) "Use early history"
+-58 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCcbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCCBbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team The name the team gives to itself
+--------------------------------------------------------------------------------
+0 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+0 pt/round: Team Greg(P0) "Dont know"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCC
+CCCCC
+
+--------------------------------------------------------------------------------
+-148 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+29 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+CcCcCCCCccCcCCCCCCCcCCCCCCcCCcCCccCCcCCCcCcCCCCCccCcCcCcCCCccCCccCCCcCCcCcCCCCcc
+CBCBCCCCBBCBCCCCCCCBCCCCCCBCCBCCBBCCBCCCBCBCCCCCBBCBCBCBCCCBBCCBBCCCBCCBCBCCCCBB
+
+ccCCCcCcCCCCCCCCCcCCCCCCCCCcCcCCcCCCCCCCcC
+BBCCCBCBCCCCCCCCCBCCCCCCCCCBCBCCBCCCCCCCBC
+
+--------------------------------------------------------------------------------
+0 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+0 pt/round: DizzyD(P2) "Naive belief in humanity"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCC
+CCCCCC
+
+--------------------------------------------------------------------------------
+-47 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+9 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCCCCCCCcCCCCcCCCCCCCCCCCCCCCCCCCCCCcCCCCcCCCCCCCCCCCCCCCCcCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCBCCCCBCCCCCCCCCCCCCCCCCCCCCCBCCCCBCCCCCCCCCCCCCCCCBCCCCCCC
+
+CCCCCCcCCCCCCCCCcCCCcCCCCcCCCcCCCcCCCCCcCCCcCCCCCCCCCCcCCCCCCCCCCCCCCCCCCCCCCcCc
+CCCCCCBCCCCCCCCCBCCCBCCCCBCCCBCCCBCCCCCBCCCBCCCCCCCCCCBCCCCCCCCCCCCCCCCCCCCCCBCB
+
+CCCCCCCCCCCcCCCCCCCCCCCC
+CCCCCCCCCCCBCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-55 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+10 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+CcCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCcccCcCCCCCCCCCCCCCCCCCCCCCCCCCcCcCCCCCCCCC
+CBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCBBBCBCCCCCCCCCCCCCCCCCCCCCCCCCBCBCCCCCCCCC
+
+CCCCCCCcCCCCcCCCCCCCCCCCCCCCCCCcCCCCCCccCCCCCCCCCCCCCCccCCCCcCCCCCCCCCcCcCCCCCCC
+CCCCCCCBCCCCBCCCCCCCCCCCCCCCCCCBCCCCCCBBCCCCCCCCCCCCCCBBCCCCBCCCCCCCCCBCBCCCCCCC
+
+CCcCCCCCCCcCC
+CCBCCCCCCCBCC
+
+--------------------------------------------------------------------------------
+-254 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+50 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+ccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCccc
+BBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBB
+
+CCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCcccCCCccc
+CCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBBCCCBBB
+
+--------------------------------------------------------------------------------
+0 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+0 pt/round: Kristin(P6) "Use early history"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+--------------------------------------------------------------------------------
+-235 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+46 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+ccCccCcCCccccccCccCCcCCCcCCCccCCCccCcCcCCcccccCcCCccCCCCCcCcCCcCCCcCCCCccCcccccC
+BBCBBCBCCBBBBBBCBBCCBCCCBCCCBBCCCBBCBCBCCBBBBBCBCCBBCCCCCBCBCCBCCCBCCCCBBCBBBBBC
+
+CccCCCccCCccccCcccCCCCCCCcCCCcCccCcCcCCCCCcCcCCCCccCccccCcCCcCcCCccCCCcCcCcccCCC
+CBBCCCBBCCBBBBCBBBCCCCCCCBCCCBCBBCBCBCCCCCBCBCCCCBBCBBBBCBCCBCBCCBBCCCBCBCBBBCCC
+
+cCcccCCcCCCCcccccCcCccCCCCCcCC
+BCBBBCCBCCCCBBBBBCBCBBCCCCCBCC
+
+--------------------------------------------------------------------------------
+-239 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+47 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+CCCCCCCCCCCCCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+ccccccccccccccccccccccccccccccccc
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team Yearout
+--------------------------------------------------------------------------------
+-244 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+-248 pt/round: Team Greg(P0) "Dont know"
+CCCBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-250 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+-250 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+Bcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+cBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-236 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+-250 pt/round: DizzyD(P2) "Naive belief in humanity"
+CBCCBBCBcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CcCCccCcBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-247 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+-250 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+CBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+Ccbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbb
+bbb
+
+--------------------------------------------------------------------------------
+-246 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+-246 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+CCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+49 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+-278 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+cbBBBBBBBBBBBBBBBBBBBBCBBCCCBCCBCBCCCBCCCCBBBCBCCBBBCCBCBCBCBBBCCCBBBBBCBCBBCBBB
+BbccccccccccccccccccccCccCCCcCCcCcCCCcCCCCcccCcCCcccCCcCcCcCcccCCCcccccCcCccCccc
+
+BBCCCCBCBCCCBCBCCCBBCCBBCBCBCCCCBBBCCBCCBCBBCBBCCBBCBC
+ccCCCCcCcCCCcCcCCCccCCccCcCcCCCCcccCCcCCcCccCccCCccCcC
+
+--------------------------------------------------------------------------------
+-246 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+-254 pt/round: Kristin(P6) "Use early history"
+BbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+cbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bb
+bb
+
+--------------------------------------------------------------------------------
+46 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+-235 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+BBCBBCBCCBBBBBBCBBCCBCCCBCCCBBCCCBBCBCBCCBBBBBCBCCBBCCCCCBCBCCBCCCBCCCCBBCBBBBBC
+ccCccCcCCccccccCccCCcCCCcCCCccCCCccCcCcCCcccccCcCCccCCCCCcCcCCcCCCcCCCCccCcccccC
+
+CBBCCCBBCCBBBBCBBBCCCCCCCBCCCBCBBCBCBCCCCCBCBCCCCBBCBBBBCBCCBCBCCBBCCCBCBCBBBCCC
+CccCCCccCCccccCcccCCCCCCCcCCCcCccCcCcCCCCCcCcCCCCccCccccCcCCcCcCCccCCCcCcCcccCCC
+
+BCBBBCCBCCCCBBBBBCBCBBCCCCCBCC
+cCcccCCcCCCCcccccCcCccCCCCCcCC
+
+--------------------------------------------------------------------------------
+-248 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+-248 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+CBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Section 3 - Game Data for Team Anonymous player
+--------------------------------------------------------------------------------
+15 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-76 pt/round: Team Greg(P0) "Dont know"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCBBBBBBBBBBBBBBBBBB
+CCCCCCCCCCCCCCCCCCCCCcccccccccccccccccc
+
+--------------------------------------------------------------------------------
+-247 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-247 pt/round: Honest Abe(P1) "Collude 70% of the time unless betrayed within last 2 rounds."
+CcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+1 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-10 pt/round: DizzyD(P2) "Naive belief in humanity"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCBB
+CCCCCCCCCCCCCCCCCCCCCcc
+
+--------------------------------------------------------------------------------
+-215 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-215 pt/round: The name the team gives to itself(P3) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCCCCcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+-253 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-248 pt/round: The name the team gives to itself(P4) "The name the team gives to this strategy"
+cbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+Bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+94 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-495 pt/round: Team6(P5) "Lets see what has happened and do the opposite"
+cbBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+Bbcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+--------------------------------------------------------------------------------
+-58 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-67 pt/round: Kristin(P6) "Use early history"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCBbBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CCCCCCCCCCCCCCCCCCCCCcbcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
+47 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-239 pt/round: The name the team gives to itself(P7) "The name the team gives to this strategy"
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+CCCCCCCCCCCCCCCCCCCCCBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+CCCCCCCCCCCCCCCCCCCCCccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+ccccccccccccccccccccccccccccccccc
+
+--------------------------------------------------------------------------------
+-248 pt/round: Anonymous player(P9) "Collude first 100 rounds unless betrayed. Betray 101st round forward."
+-248 pt/round: Yearout(P8) "Betray if recently betrayed, otherwise betray occaisonally"
+CcBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+CBcbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+--------------------------------------------------------------------------------
